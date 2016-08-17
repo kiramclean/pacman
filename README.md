@@ -1,7 +1,6 @@
 # Pacman
 
-This README outlines the details of collaborating on this Ember application.
-A short introduction of this app could easily go here.
+This is PacMan written in javascript on an HTML5 canvas. Play it live or run it locally by following the instructions below.
 
 ## Prerequisites
 
