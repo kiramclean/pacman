@@ -4,7 +4,7 @@ import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/component';
 export default Ember.Component.extend(KeyboardShortcuts, {
   didInsertElement: function() {
     this.drawGrid();
-    this.drawCircle();
+    this.drawPac();
   },
 
   ctx: Ember.computed(function() {
@@ -43,22 +43,6 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     ctx.clearRect(0, 0, this.get('screenPixelWidth'), this.get('screenPixelHeight'));
   },
 
-  drawCircle: function() {
-    let ctx = this.get('ctx');
-    let x = this.get('x');
-    let y = this.get('y');
-    let squareSize = this.get('squareSize');
-
-    let pixelX = (x+1/2) * squareSize;
-    let pixelY = (y+1/2) * squareSize;
-
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.arc(pixelX, pixelY, squareSize/2, 0, Math.PI * 2, false);
-    ctx.closePath();
-    ctx.fill();
-  },
-
   keyboardShortcuts: {
     up: function() {
       this.movePacMan('y', -1);
@@ -85,9 +69,10 @@ export default Ember.Component.extend(KeyboardShortcuts, {
       this.decrementProperty(direction, amount);
     }
 
+    this.processPellets();
     this.clearScreen();
     this.drawGrid();
-    this.drawCircle();
+    this.drawPac();
   },
 
   collidedWithBorder: function(direction) {
@@ -119,7 +104,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     [2,1,2,1,2,2,2,2],
     [1,2,1,2,2,2,2,1],
     [1,2,2,2,2,2,2,1],
-    [1,2,2,2,2,2,2,1],
+    [2,2,2,2,2,2,2,2],
     [1,2,2,2,2,2,2,1]
   ],
 
@@ -129,24 +114,61 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     ctx.fillStyle = '#000';
 
     let grid = this.get('grid');
-    grid.forEach(function(row, rowIndex) {
-      row.forEach(function(cell, columnIndex) {
+    grid.forEach((row, rowIndex) => {
+      row.forEach((cell, columnIndex) => {
         if (cell === 1) {
-          ctx.fillRect(columnIndex * squareSize,
-              rowIndex * squareSize,
-              squareSize,
-              squareSize);
+          this.drawWall(columnIndex, rowIndex);
         }
         if (cell === 2) {
-          let pixelX = (columnIndex + 1/2) * squareSize;
-          let pixelY = (rowIndex + 1/2) * squareSize;
-
-          ctx.beginPath();
-          ctx.arc(pixelX, pixelY, squareSize/6, 0, Math.PI * 2, false);
-          ctx.closePath();
-          ctx.fill();
+          this.drawPellet(columnIndex, rowIndex);
         }
       });
     });
+  },
+
+  drawWall: function(x, y) {
+    let ctx = this.get('ctx');
+    let squareSize = this.get('squareSize');
+
+    ctx.fillStyle = '#000';
+    ctx.fillRect(x * squareSize,
+                 y * squareSize,
+                 squareSize,
+                 squareSize)
+  },
+
+  drawCircle: function(x, y, fraction) {
+    let ctx = this.get('ctx');
+    let squareSize = this.get('squareSize');
+
+    let pixelX = (x + 1/2) * squareSize;
+    let pixelY = (y + 1/2) * squareSize;
+
+    ctx.fillStyle = '#333';
+    ctx.beginPath();
+    ctx.arc(pixelX, pixelY, squareSize/fraction, 0, Math.PI * 2, false);
+    ctx.closePath();
+    ctx.fill();
+  },
+
+  drawPellet: function(x, y) {
+    this.drawCircle(x, y, 6);
+  },
+
+  drawPac: function() {
+    let x = this.get('x');
+    let y = this.get('y');
+
+    this.drawCircle(x, y, 2)
+  },
+
+  processPellets: function() {
+    let x = this.get('x');
+    let y = this.get('y');
+    let grid = this.get('grid');
+
+    if (grid[y][x] === 2) {
+      grid[y][x] = 0;
+    }
   }
 });
