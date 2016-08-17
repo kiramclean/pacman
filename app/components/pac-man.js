@@ -8,9 +8,17 @@ export default Ember.Component.extend(KeyboardShortcuts, {
   score: 0,
   level: 1,
 
-  didInsertElement: function() {
+  didInsertElement() {
     this.drawGrid();
     this.drawPac();
+  },
+
+  directions: {
+    'up':      { x:  0, y: -1 },
+    'down':    { x:  0, y:  1 },
+    'right':   { x:  1, y:  0 },
+    'left':    { x: -1, y:  0 },
+    'stopped': { x:  0, y:  0 }
   },
 
   ctx: Ember.computed(function() {
@@ -27,11 +35,11 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     return this.get('grid.length');
   }),
 
-  dimensionMap: {
-    x: 'screenWidth',
-    y: 'screenHeight'
-  },
-
+  // dimensionMap: {
+  //   x: 'screenWidth',
+  //   y: 'screenHeight'
+  // },
+  //
   screenPixelWidth: Ember.computed(function() {
     return this.get('screenWidth') * this.get('squareSize');
   }),
@@ -40,66 +48,78 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     return this.get('screenHeight') * this.get('squareSize');
   }),
 
-  clearScreen: function() {
+  clearScreen() {
     let ctx = this.get('ctx');
     ctx.clearRect(0, 0, this.get('screenPixelWidth'), this.get('screenPixelHeight'));
   },
 
   keyboardShortcuts: {
-    up: function() {
-      this.movePacMan('y', -1);
+    up() {
+      this.movePacMan('up');
     },
-    down: function() {
-      this.movePacMan('y', 1);
+    down() {
+      this.movePacMan('down');
     },
-    right: function() {
-      this.movePacMan('x', 1);
+    right() {
+      this.movePacMan('right');
     },
-    left: function() {
-      this.movePacMan('x', -1);
+    left() {
+      this.movePacMan('left');
     },
   },
 
-  movePacMan: function(direction, amount) {
-    this.incrementProperty(direction, amount);
+  movePacMan(direction, amount) {
+    if (!this.pathBlocked(direction)) {
+      this.set('x', this.nextCoordinate('x', direction));
+      this.set('y', this.nextCoordinate('y', direction));
 
-    if (this.collidedWithBorder(direction)) {
-      this.decrementProperty(direction, this.loopAmount(direction, amount));
+      this.processPellets();
     }
 
-    if (this.collidedWithWall(direction, amount)) {
-      this.decrementProperty(direction, amount);
-    }
-
-    this.processPellets();
     this.clearScreen();
     this.drawGrid();
     this.drawPac();
   },
 
-  collidedWithBorder: function(direction) {
-    let position = this.get(direction);
-    let dimension = this.get('dimensionMap')[direction];
-    let size = this.get(dimension);
-    let pacOutOfBounds = position < 0 || position >= size;
-    return pacOutOfBounds;
+  pathBlocked(direction) {
+    let cellType = this.cellType(direction);
+    return Ember.isEmpty(cellType) || cellType === 1;
   },
 
-  loopAmount: function(direction, amount) {
-    let dimension = this.get('dimensionMap')[direction];
-    let heightOrWidth = this.get(dimension);
-    return amount * heightOrWidth;
+  cellType(direction) {
+    let nextX = this.nextCoordinate('x', direction);
+    let nextY = this.nextCoordinate('y', direction);
+
+    return this.get(`grid.${nextY}.${nextX}`)
   },
 
-  collidedWithWall: function() {
-    let x = this.get('x');
-    let y = this.get('y');
-    let grid = this.get('grid');
-
-    let hitWall = grid[y][x] === 1;
-    return hitWall;
+  nextCoordinate(coordinate, direction) {
+    return this.get(coordinate) + this.get(`directions.${direction}.${coordinate}`);
   },
 
+  // collidedWithBorder(direction) {
+  //   let position = this.get(direction);
+  //   let dimension = this.get('dimensionMap')[direction];
+  //   let size = this.get(dimension);
+  //   let pacOutOfBounds = position < 0 || position >= size;
+  //   return pacOutOfBounds;
+  // },
+  //
+  // loopAmount(direction, amount) {
+  //   let dimension = this.get('dimensionMap')[direction];
+  //   let heightOrWidth = this.get(dimension);
+  //   return amount * heightOrWidth;
+  // },
+  //
+  // collidedWithWall() {
+  //   let x = this.get('x');
+  //   let y = this.get('y');
+  //   let grid = this.get('grid');
+  //
+  //   let hitWall = grid[y][x] === 1;
+  //   return hitWall;
+  // },
+  //
   // 0 is empty, 1 is a wall, 2 is a pellet
   grid: [
     [1,2,2,2,2,2,2,1],
@@ -110,7 +130,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     [1,2,2,2,2,2,2,1]
   ],
 
-  drawGrid: function() {
+  drawGrid() {
     let ctx = this.get('ctx');
     ctx.fillStyle = '#000';
 
@@ -127,7 +147,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     });
   },
 
-  drawWall: function(x, y) {
+  drawWall(x, y) {
     let ctx = this.get('ctx');
     let squareSize = this.get('squareSize');
 
@@ -138,7 +158,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
                  squareSize);
   },
 
-  drawCircle: function(x, y, fraction) {
+  drawCircle(x, y, fraction) {
     let ctx = this.get('ctx');
     let squareSize = this.get('squareSize');
 
@@ -152,18 +172,18 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     ctx.fill();
   },
 
-  drawPellet: function(x, y) {
+  drawPellet(x, y) {
     this.drawCircle(x, y, 6);
   },
 
-  drawPac: function() {
+  drawPac() {
     let x = this.get('x');
     let y = this.get('y');
 
     this.drawCircle(x, y, 2);
   },
 
-  processPellets: function() {
+  processPellets() {
     let x = this.get('x');
     let y = this.get('y');
     let grid = this.get('grid');
@@ -179,7 +199,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     }
   },
 
-  levelComplete: function() {
+  levelComplete() {
     let hasPelletsLeft = false;
     let grid = this.get('grid');
 
@@ -194,7 +214,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     return !hasPelletsLeft;
   },
 
-  restartLevel: function() {
+  restartLevel() {
     this.set('x', 0);
     this.set('y', 0);
 
