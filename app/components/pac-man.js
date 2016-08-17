@@ -14,15 +14,21 @@ export default Ember.Component.extend(KeyboardShortcuts, {
 
   x: 1,
   y: 2,
-  squareSize: 40,
-  screenWidth: 20,
+  squareSize: 30,
+  screenWidth: 30,
   screenHeight: 15,
+
+  screenPixelWidth: Ember.computed(function() {
+    return this.get('screenWidth') * this.get('squareSize');
+  }),
+
+  screenPixelHeight: Ember.computed(function() {
+    return this.get('screenHeight') * this.get('squareSize');
+  }),
 
   clearScreen: function() {
     let ctx = this.get('ctx');
-    let screenPixelWidth = this.get('screenWidth') * this.get('squareSize');
-    let screenPixelHeight = this.get('screenHeight') * this.get('squareSize');
-    ctx.clearRect(0, 0, screenPixelWidth , screenPixelHeight);
+    ctx.clearRect(0, 0, this.get('screenPixelWidth'), this.get('screenPixelHeight'));
   },
 
   drawCircle: function() {
@@ -60,10 +66,10 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     this.incrementProperty(direction, amount);
 
     if (this.collidedWithLeftRightBorder()) {
-      this.decrementProperty(direction, amount*this.get('screenWidth'))
+      this.decrementProperty(direction, amount*this.get('screenWidth'));
     }
     if (this.collidedWithUpDownBorder()) {
-      this.decrementProperty(direction, amount*this.get('screenHeight'))
+      this.decrementProperty(direction, amount*this.get('screenHeight'));
     }
 
     this.clearScreen();
@@ -74,13 +80,13 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     let x = this.get('x');
     let screenWidth = this.get('screenWidth');
     let pacOutOfBounds = x < 0 || x >= screenWidth;
-    return pacOutOfBounds
+    return pacOutOfBounds;
   },
 
   collidedWithUpDownBorder: function() {
     let y = this.get('y');
     let screenHeight = this.get('screenHeight');
     let pacOutOfBounds = y < 0 || y >= screenHeight;
-    return pacOutOfBounds
+    return pacOutOfBounds;
   }
 });
