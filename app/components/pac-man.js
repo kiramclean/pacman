@@ -2,6 +2,12 @@ import Ember from 'ember';
 import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/component';
 
 export default Ember.Component.extend(KeyboardShortcuts, {
+  x: 1,
+  y: 2,
+  squareSize: 30,
+  score: 0,
+  level: 1,
+
   didInsertElement: function() {
     this.drawGrid();
     this.drawPac();
@@ -13,12 +19,8 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     return ctx;
   }),
 
-  x: 1,
-  y: 2,
-  squareSize: 30,
-
   screenWidth: Ember.computed(function() {
-    return this.get('grid.firstObject.length')
+    return this.get('grid.firstObject.length');
   }),
 
   screenHeight: Ember.computed(function() {
@@ -94,8 +96,8 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     let y = this.get('y');
     let grid = this.get('grid');
 
-    let hitWall = grid[y][x] === 1
-    return hitWall
+    let hitWall = grid[y][x] === 1;
+    return hitWall;
   },
 
   // 0 is empty, 1 is a wall, 2 is a pellet
@@ -109,7 +111,6 @@ export default Ember.Component.extend(KeyboardShortcuts, {
   ],
 
   drawGrid: function() {
-    let squareSize = this.get('squareSize');
     let ctx = this.get('ctx');
     ctx.fillStyle = '#000';
 
@@ -134,7 +135,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     ctx.fillRect(x * squareSize,
                  y * squareSize,
                  squareSize,
-                 squareSize)
+                 squareSize);
   },
 
   drawCircle: function(x, y, fraction) {
@@ -159,7 +160,7 @@ export default Ember.Component.extend(KeyboardShortcuts, {
     let x = this.get('x');
     let y = this.get('y');
 
-    this.drawCircle(x, y, 2)
+    this.drawCircle(x, y, 2);
   },
 
   processPellets: function() {
@@ -169,6 +170,41 @@ export default Ember.Component.extend(KeyboardShortcuts, {
 
     if (grid[y][x] === 2) {
       grid[y][x] = 0;
+      this.incrementProperty('score');
+
+      if (this.levelComplete()) {
+        this.incrementProperty('level');
+        this.restartLevel();
+      }
     }
+  },
+
+  levelComplete: function() {
+    let hasPelletsLeft = false;
+    let grid = this.get('grid');
+
+    grid.forEach((row) => {
+      row.forEach((cell) => {
+        if (cell === 2) {
+          hasPelletsLeft = true;
+        }
+      });
+    });
+
+    return !hasPelletsLeft;
+  },
+
+  restartLevel: function() {
+    this.set('x', 0);
+    this.set('y', 0);
+
+    let grid = this.get('grid');
+    grid.forEach((row, rowIndex) => {
+      row.forEach((cell, columnIndex) => {
+        if (cell === 0) {
+          grid[rowIndex][columnIndex] = 2;
+        }
+      });
+    });
   }
 });
