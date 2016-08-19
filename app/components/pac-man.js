@@ -2,19 +2,33 @@ import Ember from 'ember'
 import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/component'
 import Shared from '../mixins/shared'
 import Pac from '../models/pac'
+import Level1 from '../models/level'
 import Level2 from '../models/level2'
+import Level3 from '../models/level3'
 import Ghost from '../models/ghost'
 
 export default Ember.Component.extend(KeyboardShortcuts, Shared, {
   didInsertElement() {
-    let level = Level2.create()
+    this.startNewLevel()
+    this.loop()
+  },
+
+  score: 0,
+  levelNumber: 1,
+  lives: 3,
+
+  startNewLevel() {
+    let level = this.loadNewLevel()
+    level.restart()
     this.set('level', level)
+
     let pac = Pac.create({
       level: level,
       x: this.get('level.startingPac.x'),
       y: this.get('level.startingPac.y')
     })
     this.set('pac', pac)
+
     let ghosts = level.get('startingGhosts').map((startingPosition) => {
       return Ghost.create({
         level: level,
@@ -24,12 +38,14 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
       })
     })
     this.set('ghosts', ghosts)
-    this.loop()
   },
 
-  score: 0,
-  levelNumber: 1,
-  lives: 3,
+  levels: [Level3, Level1, Level2],
+  loadNewLevel() {
+    let levelIndex = (this.get('levelNumber') - 1) % this.get('levels.length')
+    let levelClass = this.get('levels')[levelIndex]
+    return levelClass.create()
+  },
 
   clearScreen() {
     let ctx = this.get('ctx')
@@ -85,9 +101,9 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
 
     ctx.fillStyle = '#000'
     ctx.fillRect(x * squareSize,
-                 y * squareSize,
-                 squareSize,
-                 squareSize)
+      y * squareSize,
+      squareSize,
+      squareSize)
   },
 
   drawPellet(x, y) {
@@ -106,8 +122,7 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
 
       if (this.get('level').isComplete()) {
         this.incrementProperty('levelNumber')
-        this.get('level').restart()
-        this.restart()
+        this.startNewLevel()
       }
     }
   },
@@ -115,7 +130,7 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
   collidedWithGhost() {
     return this.get('ghosts').any((ghost) => {
       return this.get('pac.x') === ghost.get('x') &&
-             this.get('pac.y') === ghost.get('y')
+      this.get('pac.y') === ghost.get('y')
     })
   },
 
@@ -123,7 +138,8 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
     if (this.get('lives') <= 0) {
       this.set('score', 0)
       this.set('lives', 3)
-      this.get('level').restart()
+      this.set('levelNumber', 1)
+      this.startNewLevel()
     }
     this.get('pac').restart()
     this.get('ghosts').forEach( ghost => ghost.restart() )

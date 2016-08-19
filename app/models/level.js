@@ -4,21 +4,26 @@ export default Ember.Object.extend({
   squareSize: 40,
 
   startingGhosts: [{
-    x: 1,
+    x: 5,
     y: 0
   }, {
-    x: 5,
+    x: 6,
     y:2
   }],
+
+  startingPac: {
+    x: 1,
+    y: 0
+  },
 
   // 0 is empty, 1 is a wall, 2 is a pellet
   grid: [
     [1,2,2,2,2,2,2,1],
-    [1,1,2,1,2,2,2,2],
-    [1,2,1,2,2,2,2,1],
-    [1,2,2,2,2,2,2,1],
+    [1,2,2,1,1,1,2,2],
+    [1,2,1,2,2,1,2,1],
+    [1,2,2,2,2,1,2,1],
     [2,2,2,2,2,2,2,2],
-    [1,2,2,2,2,2,2,1]
+    [1,2,2,1,1,2,2,1]
   ],
 
   width:       Ember.computed(function() { return this.get('grid.firstObject.length')         } ),
