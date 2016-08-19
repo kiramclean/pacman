@@ -3,6 +3,7 @@ import KeyboardShortcuts from 'ember-keyboard-shortcuts/mixins/component'
 import Shared from '../mixins/shared'
 import Pac from '../models/pac'
 import Level2 from '../models/level2'
+import Ghost from '../models/ghost'
 
 export default Ember.Component.extend(KeyboardShortcuts, Shared, {
   didInsertElement() {
@@ -14,6 +15,12 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
       y: this.get('level.startingPac.y')
     })
     this.set('pac', pac)
+    let ghost = Ghost.create({
+      level: level,
+      x: 0,
+      y: 0
+    })
+    this.set('ghost', ghost)
     this.loop()
   },
 
@@ -48,6 +55,7 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
     this.clearScreen()
     this.drawGrid()
     this.get('pac').draw()
+    this.get('ghost').draw()
 
     Ember.run.later(this, this.loop, 1000/60)
   },
