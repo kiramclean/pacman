@@ -18,7 +18,8 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
     let ghost = Ghost.create({
       level: level,
       x: 0,
-      y: 0
+      y: 0,
+      pac: pac
     })
     this.set('ghost', ghost)
     this.loop()
@@ -49,6 +50,7 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
 
   loop() {
     this.get('pac').move()
+    this.get('ghost').move()
 
     this.processPellets()
 
