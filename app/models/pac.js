@@ -4,8 +4,9 @@ import Shared from '../mixins/shared'
 export default Ember.Object.extend(Shared, {
   direction: 'down',
   intent: 'down',
-  x: 1,
-  y: 1,
+  x: null,
+  y: null,
+  level: null,
 
   move() {
     if (this.animationComplete()) {
@@ -64,8 +65,8 @@ export default Ember.Object.extend(Shared, {
   },
 
   restart() {
-    this.set('x', 0)
-    this.set('y', 0)
+    this.set('x', this.get('level.startingPac.x'))
+    this.set('y', this.get('level.startingPac.y'))
     this.set('frameCycle', 0)
     this.set('direction', 'stopped')
   }
