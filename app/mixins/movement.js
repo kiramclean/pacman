@@ -7,7 +7,9 @@ export default Ember.Mixin.create({
   direction: 'down',
 
   move() {
-    if (this.animationComplete()) {
+    if (this.get('removed')) {
+      // do nothing, there is no ghost
+    } else if (this.animationComplete()) {
       this.finalizeMove()
       this.changeDirection()
     } else if (this.get('direction') === 'stopped') {

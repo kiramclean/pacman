@@ -33,15 +33,18 @@ export default Ember.Object.extend(Shared, Movement, {
     if (this.pathBlocked(direction)) {
       return 0
     } else {
-      let chances = ((this.get('pac.y') - this.get('y')) * this.get(`directions.${direction}.y`)) +
+      let desirabilityOfDirection = ((this.get('pac.y') - this.get('y')) * this.get(`directions.${direction}.y`)) +
       ((this.get('pac.x') - this.get('x')) * this.get(`directions.${direction}.x`))
 
-      return Math.max(chances, 0) + 0.2
+      if (this.get('pac.powerMode')) {
+        desirabilityOfDirection *= -1
+      }
+      return Math.max(desirabilityOfDirection, 0) + 0.2
     }
   },
 
   getRandomItem(list, weights) {
-    var totalWeight = weights.reduce(function(prev, curr, i, arr) {
+    var totalWeight = weights.reduce(function(prev, curr) {
       return prev + curr
     })
 
@@ -63,5 +66,13 @@ export default Ember.Object.extend(Shared, Movement, {
     this.set('y', this.get('startingY'))
     this.set('frameCycle', 0)
     this.set('direction', 'stopped')
+  },
+
+  removed: false,
+  retreat() {
+    this.set('removed', true)
+    this.set('frameCycle', 0)
+    this.set('x', this.get('level.ghostRetreat.x'))
+    this.set('y', this.get('level.ghostRetreat.y'))
   }
 })

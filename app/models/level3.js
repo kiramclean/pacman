@@ -3,14 +3,14 @@ import Level from './level'
 export default Level.extend({
   squareSize: 40,
 
-  grid: [
+  layout: [
     [1,1,1,2,1,1,1,1,1],
     [1,2,2,2,2,2,2,1,1],
-    [1,2,2,2,2,2,2,2,1],
+    [1,2,2,2,2,2,3,2,1],
     [1,2,2,1,1,1,2,2,1],
     [1,2,2,2,2,2,2,2,1],
     [1,2,1,2,1,2,1,2,1],
-    [1,2,2,2,2,2,2,2,1],
+    [1,3,2,2,2,2,2,2,1],
     [1,1,1,2,1,1,1,1,1],
   ],
 
@@ -27,5 +27,10 @@ export default Level.extend({
     y:1
   }],
 
-  teleport: true
+  teleport: true,
+
+  ghostRetreat: {
+    x: 4,
+    y: 3
+  }
 });
