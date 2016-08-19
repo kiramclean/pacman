@@ -3,30 +3,13 @@ import Ember from 'ember'
 export default Ember.Object.extend({
   squareSize: 40,
 
-  // 0 is empty, 1 is a wall, 2 is a pellet
-  grid: [
-    [1,2,2,2,2,2,2,1],
-    [1,1,2,1,2,2,2,2],
-    [1,2,1,2,2,2,2,1],
-    [1,2,2,2,2,2,2,1],
-    [2,2,2,2,2,2,2,2],
-    [1,2,2,2,2,2,2,1]
-  ],
-
-  width: Ember.computed(function() {
-    return this.get('grid.firstObject.length')
-  }),
-  height: Ember.computed(function() {
-    return this.get('grid.length')
-  }),
-  pixelWidth: Ember.computed(function() {
-    return this.get('width')  * this.get('squareSize')
-  }),
-  pixelHeight: Ember.computed(function() {
-    return this.get('height') * this.get('squareSize')
-  }),
-
-  squareSize: 40,
+  startingGhosts: [{
+    x: 1,
+    y: 0
+  }, {
+    x: 5,
+    y:2
+  }],
 
   // 0 is empty, 1 is a wall, 2 is a pellet
   grid: [
@@ -37,6 +20,11 @@ export default Ember.Object.extend({
     [2,2,2,2,2,2,2,2],
     [1,2,2,2,2,2,2,1]
   ],
+
+  width:       Ember.computed(function() { return this.get('grid.firstObject.length')         } ),
+  height:      Ember.computed(function() { return this.get('grid.length')                     } ),
+  pixelWidth:  Ember.computed(function() { return this.get('width')  * this.get('squareSize') } ),
+  pixelHeight: Ember.computed(function() { return this.get('height') * this.get('squareSize') } ),
 
   isComplete() {
     let hasPelletsLeft = false
