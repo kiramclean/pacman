@@ -26,18 +26,18 @@ export default Ember.Object.extend({
     [1,2,2,1,1,2,2,1]
   ],
 
-  width:       Ember.computed(function() { return this.get('grid.firstObject.length')         } ),
-  height:      Ember.computed(function() { return this.get('grid.length')                     } ),
+  width:       Ember.computed(function() { return this.get('layout.firstObject.length')         } ),
+  height:      Ember.computed(function() { return this.get('layout.length')                     } ),
   pixelWidth:  Ember.computed(function() { return this.get('width')  * this.get('squareSize') } ),
   pixelHeight: Ember.computed(function() { return this.get('height') * this.get('squareSize') } ),
 
   isComplete() {
     let hasPelletsLeft = false
-    let grid = this.get('grid')
+    let grid = this.get('layout')
 
     grid.forEach((row) => {
       row.forEach((cell) => {
-        if (cell === 2) {
+        if (this.isPellet(cell)) {
           hasPelletsLeft = true
         }
       })
@@ -45,8 +45,12 @@ export default Ember.Object.extend({
     return !hasPelletsLeft
   },
 
+  isPellet(cell) {
+    return cell === 2
+  },
+
   restart() {
-    var newGrid = jQuery.extend(true, [], this.get('layout'))
-    this.set('grid', newGrid)
+    var newLayout = jQuery.extend(true, [], this.get('layout'))
+    this.set('layout', newLayout)
   }
 })

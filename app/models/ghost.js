@@ -11,13 +11,29 @@ export default Ember.Object.extend(Shared, Movement, {
 
   x: null,
   y: null,
+  removed: Ember.computed.gt('retreatTime', 0),
+  retreatTime: 0,
+  maxRetreatTime: 500,
+  timers: ['retreatTime'],
 
   draw() {
     let x = this.get('x')
     let y = this.get('y')
     let radiusDivisor = 2
-    this.drawCircle(x, y, radiusDivisor, this.get('direction'), '#f55')
+    this.drawCircle(x, y, radiusDivisor, this.get('direction'), this.get('color'))
   },
+
+  color: Ember.computed('retreatTime', function() {
+    let timerPercentage = this.get('retreatTime') / this.get('maxRetreatTime')
+    let retreated = {r: 0, g:0, b:0}
+    let normal = {r:100, g:40, b:40}
+    let [r, g, b] = ['r', 'g', 'b'].map(function(rgbSelector) {
+      let color = retreated[rgbSelector] * timerPercentage +
+                  normal[rgbSelector] * (1 - timerPercentage)
+      return Math.round(color)
+    })
+    return `rgb(${r}%,${g}%,${b}%)`
+  }),
 
   changeDirection() {
     let directions = ['left', 'right', 'up', 'down']
@@ -68,9 +84,8 @@ export default Ember.Object.extend(Shared, Movement, {
     this.set('direction', 'stopped')
   },
 
-  removed: false,
   retreat() {
-    this.set('removed', true)
+    this.set('retreatTime', this.get('maxRetreatTime'))
     this.set('frameCycle', 0)
     this.set('x', this.get('level.ghostRetreat.x'))
     this.set('y', this.get('level.ghostRetreat.y'))

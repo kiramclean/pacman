@@ -5,6 +5,10 @@ export default Ember.Mixin.create({
   y: null,
   level: null,
   direction: 'down',
+  powerMode: Ember.computed.gt('powerModeTime', 0),
+  powerModeTime: 0,
+  maxPowerModeTime: 400,
+  timers: ['powerModeTime'],
 
   move() {
     if (this.get('removed')) {
@@ -17,6 +21,7 @@ export default Ember.Mixin.create({
     } else {
       this.incrementProperty('frameCycle')
     }
+    this.tickTimers()
   },
 
   animationComplete() {
@@ -40,7 +45,7 @@ export default Ember.Mixin.create({
     let nextX = this.nextCoordinate('x', direction)
     let nextY = this.nextCoordinate('y', direction)
 
-    let result = this.get(`level.grid.${nextY}.${nextX}`)
+    let result = this.get(`level.layout.${nextY}.${nextX}`)
     return result
   },
 
@@ -59,5 +64,13 @@ export default Ember.Mixin.create({
 
   modulo(number, mod) {
     return ((number + mod) % mod)
+  },
+
+  tickTimers() {
+    this.get('timers').forEach((timer) => {
+      if (this.get(timer) > 0) {
+          this.decrementProperty(timer)
+      }
+    })
   }
 });

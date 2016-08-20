@@ -86,7 +86,7 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
     let ctx = this.get('ctx')
     ctx.fillStyle = '#000'
 
-    let grid = this.get('level.grid')
+    let grid = this.get('level.layout')
     grid.forEach((row, rowIndex) => {
       row.forEach((cell, columnIndex) => {
         if (cell === 1) {
@@ -126,7 +126,7 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
   processPellets() {
     let x = this.get('pac.x')
     let y = this.get('pac.y')
-    let grid = this.get('level.grid')
+    let grid = this.get('level.layout')
 
     if (grid[y][x] === 2) {
       grid[y][x] = 0
@@ -138,7 +138,7 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
       }
     } else if (grid[y][x] === 3) {
       grid[y][x] = 0
-      this.set('pac.powerMode', true)
+      this.set('pac.powerModeTime', this.get('pac.maxPowerModeTime'))
     }
   },
 
