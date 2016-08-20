@@ -40,7 +40,7 @@ export default Ember.Component.extend(KeyboardShortcuts, Shared, {
     this.set('ghosts', ghosts)
   },
 
-  levels: [Level3, Level1, Level2],
+  levels: [Level1, Level2, Level3],
   loadNewLevel() {
     let levelIndex = (this.get('levelNumber') - 1) % this.get('levels.length')
     let levelClass = this.get('levels')[levelIndex]

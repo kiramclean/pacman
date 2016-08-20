@@ -4,11 +4,11 @@ export default Ember.Object.extend({
   squareSize: 40,
 
   startingGhosts: [{
-    x: 5,
-    y: 0
+    x: 3,
+    y: 3
   }, {
-    x: 6,
-    y:2
+    x: 5,
+    y:5
   }],
 
   startingPac: {
@@ -16,14 +16,19 @@ export default Ember.Object.extend({
     y: 0
   },
 
+  ghostRetreat: {
+    x: 2,
+    y: 2
+  },
+
   // 0 is empty, 1 is a wall, 2 is a pellet
   layout: [
-    [1,2,2,2,2,2,2,1],
-    [1,2,2,1,1,1,2,2],
-    [1,2,1,2,2,1,2,1],
-    [1,2,2,2,2,1,2,1],
-    [2,2,2,2,2,2,2,2],
-    [1,2,2,1,1,2,2,1]
+    [2,2,2,2,2,2,1],
+    [1,2,2,1,2,2,1],
+    [1,2,1,1,2,2,1],
+    [2,2,2,2,1,2,1],
+    [2,2,2,1,1,2,1],
+    [1,2,2,3,2,2,1],
   ],
 
   width:       Ember.computed(function() { return this.get('layout.firstObject.length')         } ),
